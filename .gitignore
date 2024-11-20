@@ -1,0 +1,44 @@
+# Ignore node_modules for React
+showswebapp.client/node_modules/
+showswebapp.client/build/
+showswebapp.client/.env
+
+# Ignore ASP.NET Core generated files
+ShowsWebApp.Server/bin/
+ShowsWebApp.Server/obj/
+ShowsWebApp.Server/wwwroot/
+
+# Ignore Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore dependency and build artifacts
+*.pdb
+*.cache
+*.lock.json
+*.lock
+
+# Ignore publish and deployment files
+ShowsWebApp.Server/*.publish/
+ShowsWebApp.Server/*.deploy/
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.bak
+
+# Ignore specific IDE or editor files
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+
+# Ignore GitHub workflows or settings if applicable
+.github/workflows/*-ignore-settings
