@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getShows } from '../api/shows';
+import { getShowsWithAmountOfSeasons } from '../api/shows';
 import { Show } from '../types/show';
 
 const Home: React.FC = () => {
@@ -10,7 +10,7 @@ const Home: React.FC = () => {
         setLoading(true); // Start loading
         try {
             // Fetch shows from API
-            const shows = await getShows();
+            const shows = await getShowsWithAmountOfSeasons();
             console.log(shows);
             setShows(shows);
         }
@@ -40,8 +40,8 @@ const Home: React.FC = () => {
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
-                                <th>Description</th>
-                            <th>Seasons</th>
+                            <th>Description</th>
+                            <th>N of Seasons</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -51,7 +51,7 @@ const Home: React.FC = () => {
                                     <td>{show.id}</td>
                                     <td>{show.title}</td>
                                     <td>{show.description}</td>
-                                    <td>{show.seasons}</td>
+                                    <td>{show.seasonsAmount}</td>
                                 </tr>
                             ))
                         ) : (

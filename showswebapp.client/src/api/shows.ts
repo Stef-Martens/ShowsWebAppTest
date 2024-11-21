@@ -26,3 +26,11 @@ export const updateShow = async (show: Show): Promise<Show> => {
 export const deleteShow = async (id: number): Promise<void> => {
     await axios.delete(`${API_URL}/${id}`);
 }
+
+export const getShowsWithAmountOfSeasons = async (): Promise<Show[]> => {
+    const response = await axios.get<Show[]>(`${API_URL}/ShowsFull`);
+    response.data.forEach(show => {
+        show.seasonsAmount = show.seasons.length;
+    });
+    return response.data;
+}

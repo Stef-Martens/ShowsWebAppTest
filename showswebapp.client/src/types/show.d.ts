@@ -5,4 +5,5 @@ export interface Show {
     language: string;
     description: string;
     seasons: Season[];
+    seasonsAmount: number;
 }
