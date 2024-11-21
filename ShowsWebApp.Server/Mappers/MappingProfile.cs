@@ -14,12 +14,12 @@ namespace ShowsWebApp.Server.Mappers
 
             // Season -> SeasonDto and reverse
             CreateMap<Season, SeasonDTO>()
-                .ForMember(dest => dest.ShowId, opt => opt.MapFrom(src => src.Show.Id))
+                //.ForMember(dest => dest.ShowId, opt => opt.MapFrom(src => src.Show.Id))
                 .ReverseMap();
 
             // Episode -> EpisodeDto and reverse
             CreateMap<Episode, EpisodeDTO>()
-                .ForMember(dest => dest.SeasonId, opt => opt.MapFrom(src => src.Season.Id))
+                //.ForMember(dest => dest.SeasonId, opt => opt.MapFrom(src => src.Season.Id))
                 .ReverseMap();
         }
     }

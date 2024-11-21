@@ -9,6 +9,7 @@ using ShowsWebApp.Server.DTOs;
 using ShowsWebApp.Server.Data;
 using AutoMapper;
 using ShowsWebApp.Server.Models;
+using ShowsWebApp.Server.Services;
 
 namespace ShowsWebApp.Server.Controllers
 {
@@ -16,45 +17,27 @@ namespace ShowsWebApp.Server.Controllers
     [ApiController]
     public class EpisodesController : ControllerBase
     {
-        private readonly ShowsWebAppServerContext _context;
-        private readonly IMapper _mapper;
+        private readonly IEpisodeService _episodeService;
 
-        public EpisodesController(ShowsWebAppServerContext context, IMapper mapper)
+        public EpisodesController(IEpisodeService episodeService)
         {
-            _context = context;
-            _mapper = mapper;
+            _episodeService = episodeService;
         }
 
         // GET: api/Episodes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EpisodeDTO>>> GetEpisodes()
         {
-            var episodes = await _context.Episodes
-                .Include(e => e.Season) // Include related data if needed
-                .ToListAsync();
-
-            // Map entities to DTOs
-            var episodeDtos = _mapper.Map<IEnumerable<EpisodeDTO>>(episodes);
-
-
-            return Ok(episodeDtos);
+            var episodes = await _episodeService.GetAllAsync();
+            return Ok(episodes);
         }
 
         // GET: api/Episodes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<EpisodeDTO>> GetEpisodeDTO(int id)
         {
-            var episode = await _context.Episodes.FindAsync(id);
-
-            if (episode == null)
-            {
-                return NotFound();
-            }
-
-            // Map entity to DTO
-            var episodeDTO = _mapper.Map<EpisodeDTO>(episode);
-
-            return episodeDTO;
+            var episode = await _episodeService.GetByIdAsync(id);
+            return Ok(episode);
         }
 
         // PUT: api/Episodes/5
@@ -67,18 +50,15 @@ namespace ShowsWebApp.Server.Controllers
                 return BadRequest();
             }
 
-            var episode = await _context.Episodes.FindAsync(id);
+            var episode = await _episodeService.GetByIdAsync(id);
             if (episode == null)
             {
                 return NotFound();
             }
 
-            // Map updated fields from DTO to entity
-            _mapper.Map(episodeDTO, episode);
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _episodeService.UpdateAsync(episode);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -92,6 +72,7 @@ namespace ShowsWebApp.Server.Controllers
                 }
             }
 
+
             return NoContent();
         }
 
@@ -100,39 +81,28 @@ namespace ShowsWebApp.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<EpisodeDTO>> PostEpisodeDTO(EpisodeDTO episodeDTO)
         {
-            // Map DTO to entity
-            var episode = _mapper.Map<Episode>(episodeDTO);
-
-            episode.Season = await _context.Seasons.FindAsync(episode.SeasonId);
-
-            _context.Episodes.Add(episode);
-            await _context.SaveChangesAsync();
-
-            // Map entity back to DTO (with the generated Id)
-            var createdDTO = _mapper.Map<EpisodeDTO>(episode);
-
-            return CreatedAtAction("GetEpisodeDTO", new { id = createdDTO.Id }, episodeDTO);
+            await _episodeService.AddAsync(episodeDTO);
+            return CreatedAtAction("GetEpisodeDTO", new { id = episodeDTO.Id }, episodeDTO);
         }
 
         // DELETE: api/EpisodeDTOes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEpisodeDTO(int id)
         {
-            var episode = await _context.Episodes.FindAsync(id);
+            var episode = await _episodeService.GetByIdAsync(id);
             if (episode == null)
             {
                 return NotFound();
             }
 
-            _context.Episodes.Remove(episode);
-            await _context.SaveChangesAsync();
+            await _episodeService.DeleteAsync(id);
 
             return NoContent();
         }
 
         private bool EpisodeExists(int id)
         {
-            return _context.Episodes.Any(e => e.Id == id);
+            return _episodeService.GetByIdAsync(id) != null;
         }
     }
 }

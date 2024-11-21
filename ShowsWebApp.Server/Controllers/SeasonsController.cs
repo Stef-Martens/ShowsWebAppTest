@@ -9,6 +9,7 @@ using ShowsWebApp.Server.DTOs;
 using ShowsWebApp.Server.Data;
 using AutoMapper;
 using ShowsWebApp.Server.Models;
+using ShowsWebApp.Server.Services;
 
 namespace ShowsWebApp.Server.Controllers
 {
@@ -16,44 +17,27 @@ namespace ShowsWebApp.Server.Controllers
     [ApiController]
     public class SeasonsController : ControllerBase
     {
-        private readonly ShowsWebAppServerContext _context;
-        private readonly IMapper _mapper;
+        private readonly ISeasonService _seasonService;
 
-        public SeasonsController(ShowsWebAppServerContext context, IMapper mapper)
+        public SeasonsController(ISeasonService seasonService)
         {
-            _context = context;
-            _mapper = mapper;
+            _seasonService = seasonService;
         }
 
         // GET: api/Seasons
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SeasonDTO>>> GetSeasons()
         {
-            var seasons = await _context.Seasons
-                .Include(s => s.Episodes) // Include related data if needed
-                .ToListAsync();
-
-            // Map entities to DTOs
-            var seasonDtos = _mapper.Map<IEnumerable<SeasonDTO>>(seasons);
-
-            return Ok(seasonDtos);
+            var seasons = await _seasonService.GetAllAsync();
+            return Ok(seasons);
         }
 
         // GET: api/Seasons/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SeasonDTO>> GetSeasonDTO(int id)
         {
-            var season = await _context.Seasons.FindAsync(id);
-
-            if (season == null)
-            {
-                return NotFound();
-            }
-
-            // Map entity to DTO
-            var seasonDTO = _mapper.Map<SeasonDTO>(season);
-
-            return Ok(seasonDTO);
+            var season = await _seasonService.GetByIdAsync(id);
+            return Ok(season);
         }
 
         // PUT: api/Seasons/5
@@ -66,15 +50,14 @@ namespace ShowsWebApp.Server.Controllers
                 return BadRequest();
             }
 
-            var season = await _context.Seasons.FindAsync(id);
+            var season = await _seasonService.GetByIdAsync(id);
             if (season == null)
                 return NotFound();
 
-            _mapper.Map(seasonDTO, season);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _seasonService.UpdateAsync(season);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -96,37 +79,26 @@ namespace ShowsWebApp.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<SeasonDTO>> PostSeasonDTO(SeasonDTO seasonDTO)
         {
-            var season = _mapper.Map<Season>(seasonDTO);
-
-            season.Show = await _context.Shows.FindAsync(season.ShowId);
-
-            _context.Seasons.Add(season);
-            await _context.SaveChangesAsync();
-
-            var createdSeasonDTO = _mapper.Map<SeasonDTO>(season);
-
-            return CreatedAtAction("GetSeasonDTO", new { id = createdSeasonDTO.Id }, createdSeasonDTO);
+            await _seasonService.AddAsync(seasonDTO);
+            return CreatedAtAction("GetSeasonDTO", new { id = seasonDTO.Id }, seasonDTO);
         }
 
         // DELETE: api/SeasonDTOes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSeasonDTO(int id)
         {
-            var seasonDTO = await _context.Seasons.FindAsync(id);
-            if (seasonDTO == null)
+            var season = await _seasonService.GetByIdAsync(id);
+            if (season == null)
             {
                 return NotFound();
             }
-
-            _context.Seasons.Remove(seasonDTO);
-            await _context.SaveChangesAsync();
-
+            await _seasonService.DeleteAsync(id);
             return NoContent();
         }
 
         private bool SeasonExists(int id)
         {
-            return _context.Seasons.Any(e => e.Id == id);
+            return _seasonService.GetAllAsync().Result.Any(e => e.Id == id);
         }
     }
 }
