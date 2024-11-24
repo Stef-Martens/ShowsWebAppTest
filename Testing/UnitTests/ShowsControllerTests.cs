@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 
 
-namespace Testing
+namespace Testing.UnitTest
 {
     public class ShowsControllerTests
     {
