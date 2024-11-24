@@ -10,6 +10,7 @@ using ShowsWebApp.Server.Data;
 using AutoMapper;
 using ShowsWebApp.Server.Models;
 using ShowsWebApp.Server.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShowsWebApp.Server.Controllers
 {
@@ -36,6 +37,7 @@ namespace ShowsWebApp.Server.Controllers
 
         // GET: api/ShowsFull
         [HttpGet("ShowsFull")]
+        //[Authorize]
         public async Task<ActionResult<IEnumerable<Show>>> GetShowsFull()
         {
             var shows = await _showService.GetShowsFull();

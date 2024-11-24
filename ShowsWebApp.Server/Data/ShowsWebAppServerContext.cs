@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ShowsWebApp.Server.DTOs;
 using ShowsWebApp.Server.Models;
 
 namespace ShowsWebApp.Server.Data
 {
-    public class ShowsWebAppServerContext : DbContext
+    public class ShowsWebAppServerContext : IdentityDbContext<User>
     {
         public ShowsWebAppServerContext(DbContextOptions<ShowsWebAppServerContext> options)
             : base(options)

@@ -7,6 +7,8 @@ using ShowsWebApp.Server.Data;
 using ShowsWebApp.Server.Repositories.ShowRepos;
 using ShowsWebApp.Server.Repositories;
 using ShowsWebApp.Server.Services;
+using Microsoft.AspNetCore.Identity;
+using ShowsWebApp.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,16 @@ builder.Services.AddScoped<ISeasonService, SeasonService>();
 builder.Services.AddScoped<IEpisodeService, EpisodeService>();
 
 
+// Configure Identity
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<ShowsWebAppServerContext>()
+    .AddApiEndpoints();
+
+
+// Add authentication and authorization
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -60,14 +72,19 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    //app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
+
+app.MapIdentityApi<User>();
 
 app.Run();
